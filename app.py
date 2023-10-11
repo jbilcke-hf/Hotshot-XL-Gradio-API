@@ -1,4 +1,5 @@
 import gradio as gr
+import subprocess
 
 def infer (prompt):
   command = [
