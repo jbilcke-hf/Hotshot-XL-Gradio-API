@@ -115,7 +115,7 @@ with gr.Blocks(css=css) as demo:
                 value="extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured"
             )
             with gr.Row():
-                lora = gr.Textbox(label="Public LoRA ID", value=None, placeholder="username/lora_id)
+                lora = gr.Textbox(label="Public LoRA ID", value=None, placeholder="username/custom_lora_name")
                 lora_trigger = gr.Textbox(label="Trigger word", interactive=False)
             with gr.Row():
                 size = gr.Dropdown(
