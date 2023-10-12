@@ -108,31 +108,36 @@ with gr.Blocks(css=css) as demo:
         </p>
                 """)
         prompt = gr.Textbox(label="Prompt")
-        negative_prompt = gr.Textbox(label="Negative prompt")
-        with gr.Row():
-            lora = gr.Textbox(label="LoRA", value=None)
-            lora_trigger = gr.Textbox(label="Trigger word", interactive=False)
-        with gr.Row():
-            size = gr.Dropdown(
-                label="Size", 
-                choices=[
-                    '320x768',
-                    '384x672',
-                    '416x608',
-                    '512x512',
-                    '608x416',
-                    '672x384',
-                    '768x320'
-                ], value='512x512')
-            
-            seed = gr.Slider(
-                label="Seed",
-                info = "-1 denotes a random seed",
-                minimum=-1,
-                maximum=423538377342,
-                step=1,
-                value=-1
+        # Advanced Settings
+        with gr.Accordion("Advanced Settings", open=False):
+            negative_prompt = gr.Textbox(
+                label="Negative prompt",
+                value="extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured"
             )
+            with gr.Row():
+                lora = gr.Textbox(label="Public LoRA ID", value=None, placeholder="username/lora_id)
+                lora_trigger = gr.Textbox(label="Trigger word", interactive=False)
+            with gr.Row():
+                size = gr.Dropdown(
+                    label="Size", 
+                    choices=[
+                        '320x768',
+                        '384x672',
+                        '416x608',
+                        '512x512',
+                        '608x416',
+                        '672x384',
+                        '768x320'
+                    ], value='512x512')
+                
+                seed = gr.Slider(
+                    label="Seed",
+                    info = "-1 denotes a random seed",
+                    minimum=-1,
+                    maximum=423538377342,
+                    step=1,
+                    value=-1
+                )
         submit_btn = gr.Button("Submit")
         gif_result = gr.Image(label="Gif")
     lora.blur(fn=get_trigger_word, inputs=[lora], outputs=[lora_trigger])
