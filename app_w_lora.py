@@ -55,7 +55,7 @@ def load_lora_weights(lora_id):
     return sfts_available_files[0]
 
 
-def infer(prompt: str, lora: str = None, size: str = '512x512', seed: int):
+def infer(prompt: str, negative_prompt: str, lora: str = None, size: str = '512x512', seed: int):
     width, height = map(int, size.split('x'))
     
     if seed < 0 :
@@ -110,6 +110,7 @@ with gr.Blocks(css=css) as demo:
         </p>
                 """)
         prompt = gr.Textbox(label="Prompt")
+        negative_prompt = gr.Textbox(label="Negative prompt")
         with gr.Row():
             lora = gr.Textbox(label="LoRA", value=None)
             lora_trigger = gr.Textbox(label="Trigger word", interactive=False)
@@ -137,6 +138,6 @@ with gr.Blocks(css=css) as demo:
         submit_btn = gr.Button("Submit")
         gif_result = gr.Image(label="Gif")
     lora.blur(fn=get_trigger_word, inputs=[lora], outputs=[lora_trigger])
-    submit_btn.click(fn=infer, inputs=[prompt, lora, size, seed], outputs=[gif_result])
+    submit_btn.click(fn=infer, inputs=[prompt, negative_prompt, lora, size, seed], outputs=[gif_result])
 
 demo.queue(max_size=12).launch()
