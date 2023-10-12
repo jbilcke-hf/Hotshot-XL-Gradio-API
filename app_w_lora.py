@@ -41,7 +41,7 @@ def get_files(file_paths):
     return result
 
 
-def load_lora(lora_id):
+def load_lora_weights(lora_id):
     # List all ".safetensors" files in repo
     sfts_available_files = fs.glob(f"{custom_model}/*safetensors")
     sfts_available_files = get_files(sfts_available_files)
@@ -59,10 +59,8 @@ def infer(prompt: str, lora: str = None, size: str = '512x512'):
 
     if lora:  # only download if a link is provided
         lora = lora.strip()  # remove leading and trailing white spaces
-        if lora == "NO SAFETENSORS FILE" : 
-            lora_path = None
-        else:
-            lora_path = load_lora(lora)
+        lora_weights = load_lora_weights(lora)
+        lora_path = lora
     else:
         lora_path = None
 
@@ -80,6 +78,7 @@ def infer(prompt: str, lora: str = None, size: str = '512x512'):
     if lora:
         command.append(f"--spatial_unet_base={spatial_unet_base}")
         command.append(f"--lora={lora_path}")
+        command.append(f"--weight_name={lora_weights}")
 
     execute_command(command)
 
