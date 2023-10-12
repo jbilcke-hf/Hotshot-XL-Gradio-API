@@ -14,15 +14,15 @@ def execute_command(command: str) -> None:
     subprocess.run(command, check=True)
 
 # Download stable-diffusion-xl
-local_dir = f"./stablediff"
-snapshot_download(
-        "stabilityai/stable-diffusion-xl-base-1.0",
-        local_dir=local_dir,
-        repo_type="model",
-        ignore_patterns=".gitattributes",
-        #token=hf_token
-    )
-spatial_unet_base = f"./stablediff/unet"
+#local_dir = f"./stablediff"
+#snapshot_download(
+#        "stabilityai/stable-diffusion-xl-base-1.0",
+#        local_dir=local_dir,
+#        repo_type="model",
+#        ignore_patterns=".gitattributes",
+#        #token=hf_token
+#    )
+#spatial_unet_base = f"./stablediff/unet"
 
 
 def get_files(file_paths):
@@ -58,7 +58,8 @@ def infer(prompt: str, lora: str = None, size: str = '512x512'):
     width, height = map(int, size.split('x'))
 
     if lora:  # only download if a link is provided
-        lora = lora.strip()  # remove leading and trailing white spaces
+        print(f"lora model id: {lora}")
+        #lora = lora.strip()  # remove leading and trailing white spaces
         lora_weights = load_lora_weights(lora)
         lora_path = lora
     else:
@@ -76,7 +77,7 @@ def infer(prompt: str, lora: str = None, size: str = '512x512'):
     ]
 
     if lora:
-        command.append(f"--spatial_unet_base={spatial_unet_base}")
+        #command.append(f"--spatial_unet_base={spatial_unet_base}")
         command.append(f"--lora={lora_path}")
         command.append(f"--weight_name={lora_weights}")
 
