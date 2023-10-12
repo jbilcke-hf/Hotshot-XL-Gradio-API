@@ -43,7 +43,7 @@ def get_files(file_paths):
 
 def load_lora_weights(lora_id):
     # List all ".safetensors" files in repo
-    sfts_available_files = fs.glob(f"{custom_model}/*safetensors")
+    sfts_available_files = fs.glob(f"{lora_id}/*safetensors")
     sfts_available_files = get_files(sfts_available_files)
 
     if sfts_available_files == []:
