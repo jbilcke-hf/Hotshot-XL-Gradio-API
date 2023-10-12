@@ -16,20 +16,16 @@ def infer (prompt):
 
   return "output.gif"
 
-css="""
-#col-container{
-    margin: 0 auto;
-    max-width: 720px;
-    text-align: left;
-}
-"""
 
-with gr.Blocks(css=css) as demo:
+with gr.Blocks() as demo:
   with gr.Column(elem_id="col-container"):
     gr.HTML("""
-<h2 style="text-align: center;">Hotshot-XL Text to GIF</h2>
-<p style="text-align: center;">Hotshot-XL is an AI text-to-GIF model trained to work alongside Stable Diffusion XL</p>
-        """)
+        <div style="z-index: 100; position: fixed; top: 0px; right: 0px; left: 0px; bottom: 0px; width: 100%; height: 100%; background: white; display: flex; align-items: center; justify-content: center; color: black;">
+          <div style="text-align: center;">
+            <p>This space is a REST API to programmatically generate GIFs using a LoRA.</p>
+            <p>Please see the <a href="https://hotshot.co" target="_blank">README.md</a> for more information.</p>
+          </div>
+    </div>""")
     prompt = gr.Textbox(label="Prompt")
     submit_btn = gr.Button("Submit")
     gif_result = gr.Image(label="Gif result")
