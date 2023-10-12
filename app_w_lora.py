@@ -5,7 +5,7 @@ import requests
 import pathlib
 import subprocess
 import gradio as gr
-from huggingface_hub import snapshot_download, HfFileSystem
+from huggingface_hub import snapshot_download, HfFileSystem, ModelCard
 
 fs = HfFileSystem()
 
@@ -13,17 +13,18 @@ fs = HfFileSystem()
 def execute_command(command: str) -> None:
     subprocess.run(command, check=True)
 
-# Download stable-diffusion-xl
-#local_dir = f"./stablediff"
-#snapshot_download(
-#        "stabilityai/stable-diffusion-xl-base-1.0",
-#        local_dir=local_dir,
-#        repo_type="model",
-#        ignore_patterns=".gitattributes",
-#        #token=hf_token
-#    )
-#spatial_unet_base = f"./stablediff/unet"
+def get_trigger_word(lora_id):
+    # Get instance_prompt a.k.a trigger word
+    card = ModelCard.load(lora_id)
+    repo_data = card.data.to_dict()
+    instance_prompt = repo_data.get("instance_prompt")
 
+    if instance_prompt is not None:
+        print(f"Trigger word: {instance_prompt}")
+    else:
+        instance_prompt = "no trigger word needed"
+        print(f"Trigger word: no trigger word needed")
+    return instance_prompt
 
 def get_files(file_paths):
     last_files = {}  # Dictionary to store the last file for each path
@@ -54,9 +55,12 @@ def load_lora_weights(lora_id):
     return sfts_available_files[0]
 
 
-def infer(prompt: str, lora: str = None, size: str = '512x512'):
+def infer(prompt: str, lora: str = None, size: str = '512x512', seed: int):
     width, height = map(int, size.split('x'))
-
+    
+    if seed < 0 :
+        seed = random.randint(0, 423538377342)
+    
     if lora:  # only download if a link is provided
         print(f"lora model id: {lora}")
         #lora = lora.strip()  # remove leading and trailing white spaces
@@ -73,7 +77,8 @@ def infer(prompt: str, lora: str = None, size: str = '512x512'):
       f"--prompt={prompt}", 
       f"--output={output}",
       f"--width={width}",
-      f"--height={height}"
+      f"--height={height}",
+      f"--seed={seed}"
     ]
 
     if lora:
@@ -99,21 +104,39 @@ with gr.Blocks(css=css) as demo:
     with gr.Column(elem_id="col-container"):
         gr.HTML("""
         <h2 style="text-align: center;">Hotshot-XL Text to GIF</h2>
-        <p style="text-align: center;">Hotshot-XL is an AI text-to-GIF model trained to work alongside Stable Diffusion XL</p>
+        <p style="text-align: center;">
+            Hotshot-XL is an AI text-to-GIF model trained to work alongside Stable Diffusion XL <br />
+            For faster inference, use the Hotshot website: www.hotshot.co
+        </p>
                 """)
         prompt = gr.Textbox(label="Prompt")
-        lora = gr.Textbox(label="LoRA", value=None)
-        size = gr.Radio(label="Size", choices=[
-            '320x768',
-            '384x672',
-            '416x608',
-            '512x512',
-            '608x416',
-            '672x384',
-            '768x320'
-        ], value='512x512')
+        with gr.Row():
+            lora = gr.Textbox(label="LoRA", value=None)
+            lora_trigger = gr.Textbox(label="Trigger word", interactive=False)
+        with gr.Row():
+            size = gr.Dropdown(
+                label="Size", 
+                choices=[
+                    '320x768',
+                    '384x672',
+                    '416x608',
+                    '512x512',
+                    '608x416',
+                    '672x384',
+                    '768x320'
+                ], value='512x512')
+            
+            seed = gr.Slider(
+                label="Seed",
+                info = "-1 denotes a random seed",
+                minimum=-1,
+                maximum=423538377342,
+                step=1,
+                value=-1
+            )
         submit_btn = gr.Button("Submit")
         gif_result = gr.Image(label="Gif")
-    submit_btn.click(fn=infer, inputs=[prompt, lora, size], outputs=[gif_result])
+    lora.blur(fn=get_trigger_word, inputs=[lora], outputs=[lora_trigger])
+    submit_btn.click(fn=infer, inputs=[prompt, lora, size, seed], outputs=[gif_result])
 
 demo.queue(max_size=12).launch()
