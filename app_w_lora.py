@@ -74,7 +74,8 @@ def infer(prompt: str, negative_prompt: str, lora: str = None, size: str = '512x
     command = [
       f"python", 
       f"inference.py",
-      f"--prompt={prompt}", 
+      f"--prompt={prompt}",
+      f"--negative_prompt={negative_prompt}",
       f"--output={output}",
       f"--width={width}",
       f"--height={height}",
