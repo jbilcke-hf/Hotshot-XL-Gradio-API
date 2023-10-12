@@ -140,7 +140,7 @@ with gr.Blocks(css=css) as demo:
                 )
         submit_btn = gr.Button("Submit")
         gif_result = gr.Image(label="Gif")
-    lora.blur(fn=get_trigger_word, inputs=[lora], outputs=[lora_trigger])
+    lora.blur(fn=get_trigger_word, inputs=[lora], outputs=[lora_trigger], queue=False)
     submit_btn.click(fn=infer, inputs=[prompt, negative_prompt, lora, size, seed], outputs=[gif_result])
 
 demo.queue(max_size=12).launch()
