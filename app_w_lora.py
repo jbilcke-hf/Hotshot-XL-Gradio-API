@@ -1,8 +1,4 @@
-import hashlib
 import os
-import uuid
-import requests
-import pathlib
 import subprocess
 import gradio as gr
 from huggingface_hub import snapshot_download, HfFileSystem, ModelCard
@@ -55,7 +51,7 @@ def load_lora_weights(lora_id):
     return sfts_available_files[0]
 
 
-def infer(prompt: str, negative_prompt: str, lora: str = None, size: str = '512x512', seed: int):
+def infer(prompt: str, negative_prompt: str, lora: str = None, size: str = '512x512', seed: int = -1):
     width, height = map(int, size.split('x'))
     
     if seed < 0 :
