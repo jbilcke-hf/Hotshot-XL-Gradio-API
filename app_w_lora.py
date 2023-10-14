@@ -1,6 +1,7 @@
 import os
 import random
 import subprocess
+import tempfile
 import gradio as gr
 from huggingface_hub import snapshot_download, HfFileSystem, ModelCard
 
@@ -60,13 +61,14 @@ def infer(prompt: str, negative_prompt: str, lora: str = None, size: str = '512x
     
     if lora:  # only download if a link is provided
         print(f"lora model id: {lora}")
-        #lora = lora.strip()  # remove leading and trailing white spaces
         lora_weights = load_lora_weights(lora)
         lora_path = lora
     else:
         lora_path = None
 
-    output = "output.gif"
+    # Use a temporary file instead of a static filename
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tf:
+        output = tf.name
 
     command = [
       f"python", 
@@ -86,21 +88,18 @@ def infer(prompt: str, negative_prompt: str, lora: str = None, size: str = '512x
 
     execute_command(command)
 
-    # note: we do not delete the lora and instead we keep it in the cache (persistent storage)
-
     return output
     
 with gr.Blocks() as demo:
     with gr.Column(elem_id="col-container"):
         gr.HTML("""
             <div style="z-index: 100; position: fixed; top: 0px; right: 0px; left: 0px; bottom: 0px; width: 100%; height: 100%; background: white; display: flex; align-items: center; justify-content: center; color: black;">
-              <div style="text-align: center;">
-                <p>This space is a REST API to programmatically generate GIFs using a LoRA.</p>
-                <p>Please see the <a href="https://hotshot.co" target="_blank">README.md</a> for more information.</p>
+              <div style="text-align: center; color: black;">
+                <p style="color: black;">This space is a REST API to programmatically generate MP4s using a LoRA.</p>
+                <p style="color: black;">Please see the <a href="https://hotshot.co" target="_blank">README.md</a> for more information.</p>
               </div>
         </div>""")
         prompt = gr.Textbox(label="Prompt")
-        # Advanced Settings
         with gr.Accordion("Advanced Settings", open=False):
             negative_prompt = gr.Textbox(
                 label="Negative prompt",
@@ -111,7 +110,7 @@ with gr.Blocks() as demo:
                 lora_trigger = gr.Textbox(label="Trigger word", interactive=False)
             with gr.Row():
                 size = gr.Dropdown(
-                    label="Size", 
+                    label="Size",
                     choices=[
                         '320x768',
                         '384x672',
@@ -134,8 +133,8 @@ with gr.Blocks() as demo:
                     value=-1
                 )
         submit_btn = gr.Button("Submit")
-        gif_result = gr.Image(label="Gif")
+        mp4_result = gr.Image(label="mp4")
     lora.blur(fn=get_trigger_word, inputs=[lora], outputs=[lora_trigger], queue=False)
-    submit_btn.click(fn=infer, inputs=[prompt, negative_prompt, lora, size, seed], outputs=[gif_result])
+    submit_btn.click(fn=infer, inputs=[prompt, negative_prompt, lora, size, seed], outputs=[mp4_result])
 
 demo.queue(max_size=12).launch()
