@@ -53,10 +53,10 @@ def load_lora_weights(lora_id):
     return sfts_available_files[0]
 
 
-def infer(prompt: str, negative_prompt: str, lora: str = None, size: str = '512x512', seed: int = -1):
+def infer(prompt: str, negative_prompt: str, lora: str = None, size: str = '512x512', seed: int = -1, steps: int = 30, video_length: int = 8, video_duration: int = 1000):
     width, height = map(int, size.split('x'))
     
-    if seed < 0 :
+    if seed < 0:
         seed = random.randint(0, 423538377342)
     
     if lora:  # only download if a link is provided
@@ -78,7 +78,10 @@ def infer(prompt: str, negative_prompt: str, lora: str = None, size: str = '512x
       f"--output={output}",
       f"--width={width}",
       f"--height={height}",
-      f"--seed={seed}"
+      f"--seed={seed}",
+      f"--steps={steps}",
+      f"--video_length={video_length}",
+      f"--video_duration={video_duration}",
     ]
 
     if lora:
@@ -132,9 +135,33 @@ with gr.Blocks() as demo:
                     step=1,
                     value=-1
                 )
+                steps = gr.Slider(
+                    label="Steps",
+                    info = "Default is 30, but for high quality rendering values like 50 or 70 are good",
+                    minimum=1,
+                    maximum=423538377342,
+                    step=1,
+                    value=30
+                )
+                video_length = gr.Slider(
+                    label="Video Length (FPS)",
+                    info = "Good values are 1 (static image) and 8 (8 FPS) but bigger values aren't really supported",
+                    minimum=1,
+                    maximum=423538377342,
+                    step=1,
+                    value=8,
+                )
+                video_duration = gr.Slider(
+                    label="Video Duration",
+                    info = "it is 1000ms by default. You can try higher values but it may be buggy.",
+                    minimum=1000,
+                    maximum=423538377342,
+                    step=1,
+                    value=1000,
+                )
         submit_btn = gr.Button("Submit")
         mp4_result = gr.Image(label="mp4")
     lora.blur(fn=get_trigger_word, inputs=[lora], outputs=[lora_trigger], queue=False)
-    submit_btn.click(fn=infer, inputs=[prompt, negative_prompt, lora, size, seed], outputs=[mp4_result])
+    submit_btn.click(fn=infer, inputs=[prompt, negative_prompt, lora, size, seed, steps, video_length, video_duration], outputs=[mp4_result])
 
 demo.queue(max_size=12).launch()
