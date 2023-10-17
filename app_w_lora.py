@@ -5,6 +5,8 @@ import tempfile
 import gradio as gr
 from huggingface_hub import snapshot_download, HfFileSystem, ModelCard
 
+SECRET_TOKEN = os.getenv('SECRET_TOKEN', 'default_secret')
+
 fs = HfFileSystem()
 
 # execute a CLI command
@@ -53,7 +55,10 @@ def load_lora_weights(lora_id):
     return sfts_available_files[0]
 
 
-def infer(prompt: str, negative_prompt: str, lora: str = None, size: str = '512x512', seed: int = -1, steps: int = 30, video_length: int = 8, video_duration: int = 1000):
+def infer(secret_token: str, prompt: str, negative_prompt: str, lora: str = None, size: str = '512x512', seed: int = -1, steps: int = 30, video_length: int = 8, video_duration: int = 1000):
+    if secret_token != SECRET_TOKEN:
+        raise gr.Error(f'Invalid secret token. Please fork the original space if you want to use it for yourself.')
+        
     width, height = map(int, size.split('x'))
     
     if seed < 0:
@@ -102,6 +107,7 @@ with gr.Blocks() as demo:
                 <p style="color: black;">Please see the <a href="https://hotshot.co" target="_blank">README.md</a> for more information.</p>
               </div>
         </div>""")
+        secret_token = gr.Textbox(label="Secret token")
         prompt = gr.Textbox(label="Prompt")
         with gr.Accordion("Advanced Settings", open=False):
             negative_prompt = gr.Textbox(
@@ -162,6 +168,6 @@ with gr.Blocks() as demo:
         submit_btn = gr.Button("Submit")
         mp4_result = gr.Image(label="mp4")
     lora.blur(fn=get_trigger_word, inputs=[lora], outputs=[lora_trigger], queue=False)
-    submit_btn.click(fn=infer, inputs=[prompt, negative_prompt, lora, size, seed, steps, video_length, video_duration], outputs=[mp4_result])
+    submit_btn.click(fn=infer, inputs=[secret_token, prompt, negative_prompt, lora, size, seed, steps, video_length, video_duration], outputs=[mp4_result])
 
 demo.queue(max_size=12).launch()
