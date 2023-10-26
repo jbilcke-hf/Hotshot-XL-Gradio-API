@@ -56,7 +56,7 @@ def load_lora_weights(lora_id):
 
 
 def infer(secret_token: str, prompt: str, negative_prompt: str, lora: str = None, size: str = '512x512', seed: int = -1, steps: int = 30, video_length: int = 8, video_duration: int = 1000):
-    print(f"secret_token = {secret_token}\nprompt = {prompt}\nnegative_prompt = {negative_prompt}\nlora = {lora}\nsize = {size}\nseed = {seed}\nsteps = {steps}\n video_length = {video_length}\nvideo_duration = {video_duration}")
+    print(f"prompt = {prompt}\nnegative_prompt = {negative_prompt}\nlora = {lora}\nsize = {size}\nseed = {seed}\nsteps = {steps}\n video_length = {video_length}\nvideo_duration = {video_duration}")
     if secret_token != SECRET_TOKEN:
         raise gr.Error(f'Invalid secret token. Please fork the original space if you want to use it for yourself.')
         
